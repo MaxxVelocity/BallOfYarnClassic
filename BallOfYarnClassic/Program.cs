@@ -1,49 +1,34 @@
 ﻿// https://github.com/MaxxVelocity/BallOfYarnClassic.git
 
+using System;
+using System.Collections.Generic;
+
 namespace BallOfYarnClassic
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     class Program
     {
-        private static bool shutdownInitiated = false;
-
-        private static ConsoleKeyInfo lastKeyPress;
-
         static void Main(string[] args)
         {
-            var backgroundThread = new Thread(new ThreadStart(BackgroundProcessing));
+            StartupEvent();
 
+            var app = new App();
 
-            backgroundThread.Start();
+            app.Run(args);
 
-            lastKeyPress = Console.ReadKey();
-
-            shutdownInitiated = true;           
+            ShutdownEvent();
         }
 
-        public static void BackgroundProcessing()
+        //These don't seem to be working, not sure why.
+        static void StartupEvent()
         {
-            Console.WriteLine("Press any key to exit.");
+            var eventAttributes = new Dictionary<string, object> { { "Local Time:", DateTime.Now.ToLocalTime().ToShortDateString() }};
+            NewRelic.Api.Agent.NewRelic.RecordCustomEvent("Application Startup.", eventAttributes);
+        }
 
-            while (!shutdownInitiated)
-            {
-                Thread.Sleep(5000);
-
-                Console.WriteLine("Still running...");
-            }
-
-            Console.WriteLine("Shutting down background process...");
-
-            if (lastKeyPress.KeyChar == 'n')
-            {
-                throw new Exception("You dropped an n bomb!");
-            }
+        static void ShutdownEvent()
+        {
+            var eventAttributes = new Dictionary<string, object> { { "Local Time:", DateTime.Now.ToLocalTime().ToShortDateString() } };
+            NewRelic.Api.Agent.NewRelic.RecordCustomEvent("Application Shutdown.", eventAttributes);
         }
     }
 }
