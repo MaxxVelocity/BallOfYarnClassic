@@ -33,6 +33,7 @@ namespace BallOfYarnClassic
         }
 
         // This doesn't seem to work at all. Nothing shows up.
+        // In theory, it should appear as a Web transaction even though this is a non-web console app.
         // TODO: find out why not
         [Transaction(Web = true)]
         public void DoWebBeacon()
@@ -43,7 +44,7 @@ namespace BallOfYarnClassic
             NewRelic.Api.Agent.NewRelic.SetTransactionUri(uri);
         }
 
-        // Thread entry points may not show up as a transaction
+        // Thread entry points may not show up as a transaction.
         public void BackgroundProcessing()
         {
             this.DoLoop();
@@ -89,7 +90,7 @@ namespace BallOfYarnClassic
             RaiseShutdownEvent();
         }
 
-        // This shows up as a top-level transaction
+        // This shows up as a top-level transaction.
         [Transaction]
         public void DoStuff(int count)
         {
@@ -104,7 +105,7 @@ namespace BallOfYarnClassic
                 new Dictionary<string, object> { { "Local Time:", DateTime.Now.ToLocalTime().ToShortDateString() } });
         }
 
-        // This shows up as a top-level transaction
+        // This shows up as a top-level transaction.
         [Transaction]
         public void DoSomethingElse()
         {
@@ -115,7 +116,7 @@ namespace BallOfYarnClassic
             this.ChaosMetric();
         }
 
-        // This appears in the breakdown of both DoStuff and DoSomethingElse, since they both invoke it
+        // This shows up in the breakdown of both DoStuff and DoSomethingElse, since they both invoke it.
         [Trace]
         public void WriteToConsole()
         {
@@ -131,13 +132,16 @@ namespace BallOfYarnClassic
             NewRelic.Api.Agent.NewRelic.RecordMetric("Chaos Factor", new Random().Next(0, 100));
         }
 
+        // This line causes a metric to appear under the Attributes section of the DoStuff transaction.
+        // These metrics do NOT appear as transactions themselves in the high-level overview.
         private void ApplyStuffCountAttribute(int count)
         {
-            // This line causes a metric to appear under the Attributes section of the DoStuff transaction
+            
             NewRelic.Api.Agent.NewRelic.AddCustomParameter("Stuff Count", count);
         }
 
-        // Have not been able to find any instances of this data in APM
+        // Have not been able to find any instances of this data in APM.
+        // TODO: find out where custom events appear or how to correctly raise them
         static void RaiseShutdownEvent()
         {
             var eventAttributes = new Dictionary<string, object> { { "Local Time:", DateTime.Now.ToLocalTime().ToShortDateString() } };
