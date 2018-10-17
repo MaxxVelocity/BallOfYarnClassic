@@ -147,5 +147,8 @@ namespace BallOfYarnClassic
             var eventAttributes = new Dictionary<string, object> { { "Local Time:", DateTime.Now.ToLocalTime().ToShortDateString() } };
             NewRelic.Api.Agent.NewRelic.RecordCustomEvent("Application Shutdown.", eventAttributes);
         }
+
+        // TODO: consider using Insights as the indicator of run completion, etc
+        // https://insights.newrelic.com/accounts/2116180/manage/api_keys
     }
 }
